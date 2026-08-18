@@ -24,3 +24,18 @@
 
 > 注意：Zeabur 的「命令执行」不是交互式终端，所以用 `TB_TOKEN=` 环境变量前缀
 > 认证（CLI 全局选项 `--token` 默认取 TB_TOKEN 环境变量），不要用交互式的 `tb login`。
+
+第 1 步：存 token（从 Tinybird 复制，用 heredoc 防截断）
+cat > /tmp/tb.txt <<'EOF'
+p.eyJ你的token
+EOF
+第 2 步：认证
+TB_TOKEN="$(cat /tmp/tb.txt)" TB_HOST='https://api.tinybird.co' tb --cloud workspace ls
+看到 Workspace typenode（05cbf940，europe-west3）+ 无报错 = 通过 ✅
+
+第 3 步：部署
+cd /app/ghost-tinybird-schema && echo Y | TB_TOKEN="$(cat /tmp/tb.txt)" TB_HOST='https://api.tinybird.co' tb --cloud deploy
+预期看到变更清单里包含 6 个 pipe（filtered_sessions、mv_*）+ 30 个 endpoint + 5 个 datasource，最后 Deployment #1 is live! ✅
+
+第 4 步：拿 tracker token
+TB_TOKEN="$(cat /tmp/tb.txt)" TB_HOST='https://api.tinybird.co' tb --cloud token ls
